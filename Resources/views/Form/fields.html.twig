@@ -1,0 +1,66 @@
+{% block erd_rating_widget %}
+  {% spaceless %}
+      <div class="integer_widget">
+          {% set type = type|default('range') %}
+          {{ block('field_widget') }}
+      </div>
+  {% endspaceless %}
+{% endblock %}
+
+{# jQuery and jQuery UI are required. If you already have them, override this block to be empty. #}
+{% block erd_rating_js_dependencies %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
+{% endblock %}
+
+{% block erd_rating_js %}
+{% spaceless %}
+    {{ block('erd_rating_js_dependencies') }}
+    <script>
+        var ERD = window.ERD || {};
+        ERD.rateable = ERD.rateable || {};
+
+        ERD.rateable.addSliders = function()
+        {
+            $("input.erd_rating").each(function(){
+
+                var range = $(this);
+
+                //We call addSliders() every time we load new form elements onto the page with ajax, but
+                //we want to make sure that it doesn't duplicate the slider on elements that already have it
+                //(because they were on the page before the ajax call). So the below skips over these would-
+                //be duplicates. Note: "return true;" continues to the next iteration in $.each().
+                if(range.next().next().hasClass('ui-slider')) { return true; }
+
+                // Create <div/> to hold jQuery UI Slider
+                var sliderDiv = $("<div/>");
+                sliderDiv.width(range.width());
+
+                var disabled = (range.attr('disabled'));
+
+                range.after(
+                        sliderDiv.slider({
+                            // Set values that are set declaratively
+                            // in the <input type=range/> element
+                            min: 0,
+                            max: 100,
+                            value: range.val(),
+                            disabled: disabled,
+                            slide: function(evt, ui) {
+                                range.val(ui.value).next().html(Math.round(ui.value)); //always parseInt to prevent the occasional rounding error
+                            },
+                            change: function(evt, ui) {
+                                range.val(ui.value).next().html(Math.round(ui.value));
+                            }
+                        })
+                ).
+                        css({'position':'absolute', 'left':'-1000em'}); //display none here will break the val() method in some browsers
+
+                range.after('<span class="slider-current-value">' + Math.round(range.val()) + '</span>');
+            });
+        }
+
+        $(function(){ERD.rateable.addSliders(); });
+    </script>
+{% endspaceless %}
+{% endblock %}
