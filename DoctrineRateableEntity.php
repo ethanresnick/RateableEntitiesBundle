@@ -34,7 +34,7 @@ trait DoctrineRateableEntity
     protected $decayRate;
 
     /**
-     * @var decimal Calculated automatically from the above properties; stored for performance.
+     * @var decimal Calculated automatically from the above properties; stored for easy access.
      * @ORM\Column(type="decimal", scale=7, precision=8)
      */
     protected $currentRating;
