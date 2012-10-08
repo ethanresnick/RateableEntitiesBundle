@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="erd_rateable_entities.form.type.rating.class">ERD\RateableEntitiesBundle\Form\Type\RatingType</parameter>
+    </parameters>
+
+    <services>
+        <service id="erd_rateable_entities.form.type.rating" class="%erd_rateable_entities.form.type.rating.class%">
+            <tag name="form.type" alias="erd_rating" />
+        </service>
+        <service id="twig.extension.erd_rateable.rating_formatter" class="ERD\RateableEntitiesBundle\Twig\Extension\RatingFormatterExtension" public="false">
+            <tag name="twig.extension" />
+        </service>
+    </services>
+</container>
+

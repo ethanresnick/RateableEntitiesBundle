@@ -21,10 +21,13 @@ class ERDRateableEntitiesExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        //prep config data
+        //prep config data & a service loader.
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
-        
+
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+
+
         //if we're using doctrine, load its services
         if($config['use_doctrine_events'])
         {
@@ -38,8 +41,9 @@ class ERDRateableEntitiesExtension extends Extension
                 throw new \Exception("To have ERDRateableEntitiesBundle automatically operate on Doctrine's entities, you must first install the ERDDoctrineHelpersBundle.");
             }
 
-            $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Doctrine/Resources/config'));
-            $loader->load('doctrine_services.xml');
-        }        
+            $loader->load('doctrine.xml');
+        }
+
+        $loader->load('form_types.xml');
     }    
 }
