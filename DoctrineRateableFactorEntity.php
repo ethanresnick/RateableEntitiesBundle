@@ -24,6 +24,7 @@ trait DoctrineRateableFactorEntity
     public function setBusinessValue($value)
     {
         $this->businessValue = $value;
+        return $this;
     }
 }
 ?>

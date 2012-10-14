@@ -55,6 +55,7 @@ trait DoctrineRateableEntity
     public function setBoost($boost)
     {
         $this->boost = $boost;
+        return $this;
     }
     
     public function getBoost() 
@@ -73,6 +74,7 @@ trait DoctrineRateableEntity
     public function setCurrentRating($time=0)
     {
         $this->currentRating = ($this->getBusinessValue() + $this->getRelevanceToUser()) * exp(-1*$time*$this->getDecayRate());
+        return $this;
     }
     
     public function getCurrentRating() 
@@ -83,6 +85,7 @@ trait DoctrineRateableEntity
     public function setRelevanceToUser($relevanceToUser)
     {
         $this->relevanceToUser = $relevanceToUser;
+        return $this;
     }
 
     public function getRelevanceToUser()
@@ -93,6 +96,7 @@ trait DoctrineRateableEntity
     public function setDecayRate($decayRate)
     {
         $this->decayRate = $decayRate;
+        return $this;
     }
 
     public function getDecayRate()
