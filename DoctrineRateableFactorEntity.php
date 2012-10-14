@@ -16,7 +16,14 @@ trait DoctrineRateableFactorEntity
      */
     protected $businessValue;
 
-    public function getBusinessValue(){ return $this->businessValue; }
-    public function setBusinessValue($value) { $this->businessValue = $value; }
+    public function getBusinessValue()
+    {
+        return $this->businessValue;
+    }
+
+    public function setBusinessValue($value)
+    {
+        $this->businessValue = $value;
+    }
 }
 ?>
