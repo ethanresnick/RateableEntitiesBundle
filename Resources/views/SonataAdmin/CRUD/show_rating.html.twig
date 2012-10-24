@@ -1,0 +1,9 @@
+{% extends 'SonataAdminBundle:CRUD:base_show_field.html.twig' %}
+
+{% block field %}
+    {% if field_description.options.range is defined %}
+        {{ value|format_rating(field_description.options.range) }}
+    {% else %}
+        {{ value|format_rating() }}
+    {% endif %}
+{% endblock %}
