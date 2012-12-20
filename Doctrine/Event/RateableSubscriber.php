@@ -47,20 +47,20 @@ class RateableSubscriber implements \Doctrine\Common\EventSubscriber
         //If we're persisting an element in the rating system we always have
         //to update all the ratings because it's likely that our new element
         //changed how much they've decayed.
-        if($this->isRateable($eventArgs->getEntity()))
+        if($eventArgs->getEntity() instanceof Rateable)
         {
-            $this->updateRatings();
+            $this->updateRatings(null, null, $eventArgs->getEntity());
         }
     }
 
     public function preRemove(LifecycleEventArgs $eventArgs)
     {
-        //If we're removing an element in the rating system we always have
-        //to update all the ratings because it's likely that our new element
-        //changed how much they've decayed.
-        if($this->isRateable($eventArgs->getEntity()))
+        //If we're removing an element in the rating system we always have to update
+        //all the ratings because it's likely that our removed element changed how
+        //much they've decayed or their RateableFactor boosts.
+        if($this->affectsRating($eventArgs->getEntity()))
         {
-            $this->updateRatings();
+            $this->updateRatings(null, $eventArgs->getEntity());
         }
     }
 
@@ -84,26 +84,25 @@ class RateableSubscriber implements \Doctrine\Common\EventSubscriber
          *     on the "reverted" clone to get their original values and then call them on the entity in its current
          *     state to see if they've changed.
          */
-        if($this->isRateable($entity) &&
+        if($this->affectsRating($entity) &&
            (count(array_intersect(array('relevanceToUser', 'decayRate', 'businessValue'), array_keys($changeSet))) > 0) || (1==1))
         {
-            $this->updateRatings($entity);
+            $this->updateRatings($eventArgs);
         }
     }
 
-    protected function isRateable($entity)
+    protected function affectsRating($entity)
     {
-       return ($entity instanceof Rateable && !$entity instanceof RateableFactor);
+       return ($entity instanceof Rateable || $entity instanceof RateableFactor);
     }
-
     /**
      * @param $updateArgs The entity we're updating with this event, if any. Needed because Doctrine handles making
      * changes to updated elements in a listener differently than it does making changes to new elements.
      */
-    protected function updateRatings(\Doctrine\ORM\Event\PreUpdateEventArgs $updateArgs = null)
+    protected function updateRatings($updatingArgs = null, $removing = null, $adding = null)
     {
         $entities = $this->provider->getAllEntities();
-        
+
         \usort($entities, 
             function($a, $b) 
             {
@@ -113,28 +112,42 @@ class RateableSubscriber implements \Doctrine\Common\EventSubscriber
                 return ($arca > $brca) ? -1 : 1;
             });
 
-        if(!$updateArgs)
+        if($removing)
         {
+            $key = array_search($removing, $entities, true);
+
+            if ($key !== false)
+            {
+                unset($entities[$key]);
+            }
+        }
+
+        if($updatingArgs) //updating
+        {
+            foreach($entities as $numberPublishedSince=>$entity)
+            {
+                $entity->setCurrentRating($numberPublishedSince);
+
+                if($entity==$updatingArgs->getEntity())
+                {
+                    $em = $updatingArgs->getEntityManager();
+                    $uow = $em->getUnitOfWork();
+                    $meta = $em->getClassMetadata(get_class($entity));
+                    $uow->recomputeSingleEntityChangeSet($meta, $entity);
+                }
+            }
+        }
+
+        else //persisting or removing
+        {
+            if($adding) { $adding->setCurrentRating(0); }
+
             foreach($entities as $numberPublishedSince=>$entity)
             {
                 $entity->setCurrentRating($numberPublishedSince);
                 //$this->doctrineRegistry->getEntityManagerForClass(get_class($entity))->persist($entity);
             }
-        }
 
-        else
-        {
-            $updatingEntity = $updateArgs->getEntity();
-
-            foreach($entities as $numberPublishedSince=>$entity)
-            {
-                $entity->setCurrentRating($numberPublishedSince);
-
-                if($entity==$updatingEntity) {
-                    $newRating = $entity->getCurrentRating();
-                    $updateArgs->setNewValue('currentRating', $newRating);
-                }
-            }
         }
         
         return $entities;
