@@ -39,7 +39,7 @@ class RateableSubscriber implements \Doctrine\Common\EventSubscriber
      */
     public function getSubscribedEvents()
     {
-        return array(Events::preUpdate, Events::prePersist, Event::preRemove);
+        return array(Events::preUpdate, Events::prePersist, Events::preRemove);
     }
 
     public function prePersist(LifecycleEventArgs $eventArgs)
