@@ -13,6 +13,10 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
 {% endblock %}
 
+{% block erd_rating_init %}
+    $(function(){ERD.rateable.addSliders(); });
+{% endblock %}
+
 {% block erd_rating_js %}
 {% spaceless %}
     {{ block('erd_rating_js_dependencies') }}
@@ -59,8 +63,7 @@
                 range.after('<span class="slider-current-value">' + Math.round(range.val()) + '</span>');
             });
         }
-
-        $(function(){ERD.rateable.addSliders(); });
+        {{ block('erd_rating_init') }}
     </script>
 {% endspaceless %}
 {% endblock %}
