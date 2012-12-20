@@ -2,8 +2,8 @@
 
 {% block field %}
     {% if field_description.options.range is defined %}
-        {{ value|format_rating(field_description.options.range) }}
+        {{ value|format_rating(field_description.options.range)|number_format }}
     {% else %}
-        {{ value|format_rating() }}
+        {{ value|format_rating()|number_format }}
     {% endif %}
 {% endblock %}
