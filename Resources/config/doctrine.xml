@@ -15,7 +15,9 @@
             <argument>ERD\RateableEntitiesBundle\Interfaces\Rateable</argument>
         </service>
         <service id="erd_rateable_entities.doctrine.subscriber" class="%erd_rateable_entities.doctrine.subscriber.class%" public="false">
+            <argument type="service" id="doctrine" />
             <argument type="service" id="erd_rateable_entities.doctrine.provider" />
+            <tag name="doctrine.event_subscriber" />
         </service>
     </services>
 </container>
